@@ -1,0 +1,243 @@
+构建工具的作用：
+依赖管理
+测试、打包、发布
+机器能干的活，绝不自己动手
+
+主流构建工具：
+Ant：编译、测试、打包
+Maven：依赖管理、发布（xml这种标记性语言管理构建脚本）
+Gradle：Groovy（Groovy管理构建脚本，灵活、可扩展）
+
+Gradle是什么
+一个开源的项目自动化构建工具，建立在Apache Ant和Apache Maven概念的基础上，并引入了基于Groovy的特定领域语言（DSL），而不再使用XML形式管理构建脚本。
+
+Gradle是一个基于JVM的构建工具，它提供了：
+像Ant一样，通用灵活的构建工具
+可以切换的，基于约定的构建框架
+强大的多工程构建支持
+基于Apache Ivy的强大的依赖管理
+支持maven, Ivy仓库
+支持传递性依赖管理，而不需要远程仓库或者是pom.xml和ivy.xml配置文件。
+对Ant的任务做了很好的集成
+基于Groovy，build脚本使用Groovy编写
+有广泛的领域模型支持构建
+
+Gradle 概述
+1，基于声明和基于约定的构建。
+2，依赖型的编程语言。
+3，可以结构化构建，易于维护和理解。
+4，有高级的API允许你在构建执行的整个过程当中，对它的核心进行监视，或者是配置它的行为。
+5，有良好的扩展性。有增量构建功能来克服性能瓶颈问题。
+6，多项目构建的支持。
+7，多种方式的依赖管理。
+8，是第一个构建集成工具。集成了Ant, maven的功能。
+9，易于移值。
+10，脚本采用Groovy编写，易于维护。
+11，通过Gradle Wrapper允许你在没有安装Gradle的机器上进行Gradle构建。
+12，自由，开源。
+
+安装：
+确保已经安装JDK，java -version
+从Gradel官网下载Gradle，https://gradle.org
+配置环境变量，GRADLE_HOME
+添加到path，%GRADLE_HOME%\bin;
+验证是否安装成功，gradle -v
+
+Groovy是什么：
+Groovy是用于Java虚拟机的一种敏捷的动态语言，它是一种成熟的面向对象编程语言，既可以用于面向对象编程，又可以用于纯粹的脚本语言。使用该种语言不必编写过多的代码，同时又具有闭包和动态语言中的其他特性。
+
+与Java比较
+Groovy完全兼容Java的语法
+分号可选
+类、方法默认是public的
+编译器给属性自动添加getter/setter方法
+属性可以直接用点号获取
+最后一个表达式的值会被作为返回值
+==等同于equals()，不会有NullPointerExceptions
+assert语句
+可选类型定义
+可选的括号
+字符串
+集合API
+闭包：一个代码块，跟一个方法一样参数可有可无，可以被复制给一个变量也可以当作参数传递给一个方法，像普通方法一样调用
+
+groovy基础知识：
+//构建脚本中默认都是有个Project实例的
+apply plugin:'java'
+version='0.1'
+repositories{
+     mavenCentral()
+}
+dependencies{
+compile 'commons-codec:commons-codec:1.6'
+}
+
+第一个Gradle项目
+示例介绍
+ToDo应用程序，只实现添加待办事项 
+Java应用程序版
+Web版
+
+gradle目录结构：
+      src
+           main
+                 java
+                 resources
+                 webapps
+           test
+                java
+                resources
+
+构建脚本：
+构件块
+Gradle构建中的两个基本概念是项目（Project）和任务（Task）,每个构建至少包含一个项目，项目中包含一个或多个任务。在多项目构建中，一个项目可以依赖于其他项目；类似的，任务可以形成一个依赖关系图来确保他们的执行顺序。
+项目（Project）
+一个项目代表一个正在构建的组件（比如一个jar文件），当构建启动后，Gradle会基于build.gradle实例化一个org.gradle.api.Project类，并且能够通过project变量使其隐式可用
+属性：group、name、version  代表坐标，这三个属性唯一确定一个构建组件（jar包）
+方法：apply、dependencies、repositories、task
+属性的其他配置方式：ext、gradle.properties
+任务（Task）
+任务对应的org.gradle.api.Task。主要包括任务动作和任务依赖。任务动作定义了一个最小的工作单元。可以定义依赖于其他任务、动作序列和执行条件。
+方法：dependsOn   声明任务依赖
+           doFirst、doLast <<       在动作列表里面可以有多个动作
+注：大部分任务插件可以解决，不能解决的需要自定义任务	
+
+自定义任务：
+定义闭包
+def createDir={
+  path ->
+      File dir=new File(path);
+      if(!dir.exists())
+         dir.mkdirs();
+}
+创建任务
+task makeJavaDir(){   
+   def paths=['src/main/java','src/main/resources','src/test/java','src/test/resources']
+    doFirst{
+        paths.forEach(createDir);
+    }
+}
+构建生命周期
+初始化（初始化项目） -->配置（除了动作代码之外，都是配置代码，生成task的依赖关系）-->执行（执行task的动作）
+配置代码示例：
+task loadVersion{
+  project.version='1.0'
+}
+执行代码实例：
+task loadVersion <<{
+print 'success'
+}
+注：配置阶段的代码只能在配置阶段执行，配置阶段决定任务的依赖关系和执行顺序，执行阶段修改任务的依赖会报错
+
+依赖管理：
+几乎所有的基于JVM的软件项目管理都需要依赖外部类库来重用现有的功能。自动化的依赖管理可以明确依赖的版本，可以解决因传递性依赖带来的版本冲突。
+工件坐标（简单理解：一个jar包）
+group、name、version
+常用仓库
+mavenLocal       本地仓库 	
+mavenCentral和jcenter      公网仓库
+自定maven仓库（maven私服）    --最常用
+文件仓库（本地机器上面的文件路径）           --基本不使用
+依赖的传递性
+B依赖A，如果C依赖B，那么C依赖A
+自动化依赖管理
+
+
+依赖阶段配置：
+compile、runtime
+testCompile、testRuntime
+依赖阶段关系
+
+
+版本冲突：
+
+解决冲突：
+查看依赖报告
+修改默认解决策略
+configurations.all{
+   resolutionStrategy{
+         failOnVersionConflict()
+  }
+}
+方法1.排除传递性依赖（把低版本的排除掉）
+compile(   'org.hibernate:hibernate-core:3.6.3.Final'  ){
+     exclude group:"org.slf4j",module:"slf4j-api"
+     //transitive=false
+}      
+方法2.强制一个版本
+configurations.all{
+   resolutionStrategy{
+         force 'org.slf4j:slf4j-api:1.7.24'
+  }
+}
+多项目构建
+项目模块化：
+在企业项目中，包层次和类关系比较复杂，把代码拆分成模块通常是最佳实践，这需要你清晰的划分功能的边界，比如把业务逻辑和数据持久化拆分开来。项目符合高内聚低耦合时，模块化就变得很容易，这是一条非常好的软件开发实践。
+TODO模块依赖关系
+
+配置子项目
+配置要求
+所有项目应用Java插件
+web子项目打成WAR包
+所有项目添加logback日志功能
+统一配置公共属性
+
+settings.gradle配置文件用来进行多项目构建
+
+多项目构建实战：
+//TODO所有项目应用Java插件
+在根项目的build.gradle文件里面新增：
+allprojects{
+   apply plugin: 'java'
+   sourceCompatibility=1.8
+}
+//TODO web子项目打包成WAR
+//TODO 所有项目添加logback日志功能
+subprojects{
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'ch.qos.logback:logback-classic:1.2.2'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+}
+//TODO统一配置group和version
+删除子项目的group和version配置，统一配置到gradle.properties文件
+gradle.properties：
+group='com.imooc.gradle'
+version= '1.0-SNAPSHOT'
+
+总结：settings.gradle用来管理项目跟子项目
+           子项目的build.gralde只用来配置该子项目的个性化设置
+           所有相同的配置都配置在根项目下的build.gradle
+
+Gradle测试
+自动化测试：
+一些开源的测试框架比如JUnit，TestNG能帮助你编写可复用的结构化的测试，为了运行这些测试，你要先编译它们，就像编译源代码一样。测试代码的作用仅仅用于测试的情况，不应该被发布到生产环境中，需要把源代码和测试代码分开来。
+
+测试配置
+dependencies{
+     testCompile  'juint:juint:4.11'
+}
+
+其中第一行是对源代码编译，前面两个框应该是 
+                                                   compile Java 和 process Resource 
+
+测试发现：
+1）任何继承自juint.framework.TestCase或groovy.util.GroovyTestCase的类
+2）任何被@RunWith注解的类
+3）任何至少包含一个被@Test注解的类
+
+发布
+发布到本地和远程仓库
+
+buidld.grale:
+
+第一步：使用maven-publish这个插件
+第二步：进行配置，配置发布内容和仓库地址
+第三步：执行发布任务
+
+
+课程总结：
+
