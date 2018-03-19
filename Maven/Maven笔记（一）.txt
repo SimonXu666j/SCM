@@ -1,0 +1,25 @@
+archetype插件：用于创建符号maven规定的目录骨架
+
+maven规定：
+
+                --src
+
+                    --main
+
+                           --java
+
+                                   主代码
+
+                    --test
+
+                           --测试代码
+
+创建目录的两种方式：
+
+1.archetype：generate  按照提示进行选择
+
+2.archetype：generate  依次把依赖全部写完：
+
+dos界面 cd  到项目的根目录下 执行 mvn archetype：generate -DgroupID=组织名，公司网址的反写+项目名
+
+-DartifaceId=项目名-模块名    -Dversion=1.0.0SNAPSHOT（版本号）   -Dpackage=代码所存在的包名
