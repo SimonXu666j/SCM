@@ -1,0 +1,80 @@
+Ubuntu安装：
+       apt-get install subversion
+Centos安装：
+        yum install subversion
+注：Subversion软件包内已包含服务端和客户端
+
+
+服务端命令：
+svnserver  --控制svn系统服务的启动       启动svn命令：svnserve  -d -r 仓库路径
+例：启动svn服务      svnserve -d -r /app/svnadmin/repository    检查：  ps -ef|grep svn
+svnadmin   --版本库的创建/导出/导入/删除等
+svnlook    --查看版本库的信息等
+
+
+客户端命令：
+svn     --版本库的检出/更新/提交/重定向等
+svn add     添加到版本控制
+svn commit  提交修改到服务端（创建一个新版本号）
+svn update  更新工作副本
+svn delete  从版本库中删除文件或目录
+svn diff    版本差异比较
+svn mkdir   创建目录并增加到版本控制
+svn cat     不检出工作副本直接查看指定文件
+
+版本库的创建与删除
+创建版本库
+   svnadmin create  /path/repos     例：svnadmin  create  /app/svn/data/products
+删除版本库 
+   rm -rf /path/repos
+   
+   
+版本库配置及权限分组
+配置文件位于   /path/repos/conf/    例： /app/svn/data/products/conf
+authz  --配置用户组以及用户组权限
+passwd  --配置用户名和密码
+svnserve.conf  --配置默认权限、权限配置文件及密码配置文件	
+
+
+访问版本库第一步：检出版本库（checkout），作用就是在本地创建一个工作副本
+svn checkout(co) svn://IP地址（或者域名） --username xx --password xx
+
+
+常见术语及文件状态
+常见术语：版本库、检出、工作副本、更新、提交、版本、版本号
+文件状态：无版本控制、增加、修改、常规、冲突、删除、锁定
+
+
+建议：svn服务端不会把某一个客户端提交的数据主动推送给其他人，所以当其他人提交了新数据的时候我们可能并不知道，这时候工作副本和服务端的数据已经不一致。养成一个经常更新的好习惯。
+让工作副本和版本库尽可能的保持一致。
+在开发中最大程度的避免数据冲突。
+
+
+checkout和export的区别与使用
+checkout-检出 export-导出
+-checkout检出的工作副本目录中含.svn文件夹
+-版本控制中有一种文件状态：无版本控制
+svn checkout -r版本号  检出指定版本
+svn export -r版本号  导出指定版本
+区别：
+checkout检出的在版本控制之下
+      checkout =>.svn+项目文件
+export导出的不在版本控制之下
+      export =>项目文件
+.svn 记录着工作副本最后一次更新后的文件状态
+.svn 标记工作副本的一切变化
+
+
+svn add 文件夹 --non-- recursive   添加目录到版本控制，但目录下的文件不递归添加（默认是递归添加的）
+注：使用svn add * 进行批量添加的时候，如果一个目录已经在版本控制中，那么这个目录下的文件就不会被添加到版本控制，使用svn add * --force就可以避免这种情况
+svn commit(ci) -m "提交备注" 文件名/目录    注：-m参数是必须要加的
+svn update 特性1：默认情况下，每个文件只会从服务器端更新一次最新版本，使用svn up * 可以强制再更新到最新版本
+svn update特性2：当工作副本缺失某个文件的时候使用svn update更新，服务端还是会把缺失文件的最新版本更新给你
+svn delete(del)/remove(rm)  文件名 -m "删除备注"    注：删除备注不是必须的
+然后提交svn ci -m ""    把服务端的对应文件删掉
+
+svn di 文件名 比较工作副本和最后一次更新版本的差异
+svn di -r 版本号 文件名 比较工作副本和指定版本的差异
+
+
+
