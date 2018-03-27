@@ -18,6 +18,7 @@ rpm -i gitlab-ce-XXX.rpm
 3.
 sudo gitlab-ctl reconfigure
 4.登录并修改默认的root用户密码
+
 优化：用域名访问
 
 修改/etc/gitlab/gitlab.rb
