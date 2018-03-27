@@ -1,0 +1,45 @@
+centos7安装gitlab服务器步骤：
+1.
+sudo yum install curl policycoreutils openssh-server openssh-clients
+sudo systemctl enable sshd
+sudo systemctl start sshd
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+##下面这个两个是给防火墙永久开通，并增加http服务
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+2.
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+sudo yum install gitlab-ce
+报错就用下面的命令：
+curl -LJO https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/7/gitlab-ce-XXX.rpm/download
+rpm -i gitlab-ce-XXX.rpm
+3.
+sudo gitlab-ctl reconfigure
+4.登录并修改默认的root用户密码
+优化：用域名访问
+
+修改/etc/gitlab/gitlab.rb
+的这一个参数： external_url "http://git.test.com"
+执行命令，让修改生效：
+sudo gitlab-ctl reconfigure
+5.本地配hosts进行域名解析
+
+gitlab 修改root用户密码
+1.（切换到root账户后）
+gitlab-rails console production
+2.（稍等一下）
+irb(main):001:0> user = User.where(id: 1).first
+3.（找出账户后可以修改密码，注意至少8位）
+irb(main):002:0> user.password='password'
+irb(main):003:0> user.password_confirmation='password'
+4. （保存一下就可以了）
+user.save!
+
+gitlab日常管理:
+gitlab-ctl start|stop|status|restart
+
+两个用户：
+root/root@Simon
+Simon/simon666
