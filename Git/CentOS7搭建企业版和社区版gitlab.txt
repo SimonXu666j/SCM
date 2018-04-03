@@ -1,0 +1,39 @@
+企业版：
+1. Install and configure the necessary dependencies
+sudo yum install -y curl policycoreutils-python openssh-server
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+
+
+2. Add the GitLab package repository and install the package
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash      --此可以本地下载再上传，在script.rpm.sh加代理服务
+
+sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
+
+
+社区版：
+1. Install and configure the necessary dependencies
+sudo yum install -y curl policycoreutils-python openssh-server openssh-clients
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+
+
+2.Add the GitLab package repository and install the package
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+
+sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ce
+
