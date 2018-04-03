@@ -1,0 +1,43 @@
+docker安装gitlab  操作系统：centos7
+1.安装docker 
+    yum install docker
+2.启动docker
+	service docker start
+3.拉取gitlab镜像
+	docker pull registry.cn-hangzhou.aliyuncs.com/imooc/gitlab-ce:latest         --阿里云的镜像
+	或
+	docker pull gitlab/gitlab-ce      --官方镜像
+4.启动gitlab容器
+	sudo docker run --detach \
+    --hostname 20.26.20.104 \
+    --publish 443:443 --publish 80:80 --publish 2222:22 \
+    --name gitlab \
+    --restart always \
+    --volume /srv/gitlab/config:/etc/gitlab \          --数据卷挂载
+    --volume /srv/gitlab/logs:/var/log/gitlab \
+    --volume /srv/gitlab/data:/var/opt/gitlab \
+    registry.cn-hangzhou.aliyuncs.com/imooc/gitlab-ce:latest
+报错：
+Error response from daemon: error creating overlay mount to /var/lib/docker/overlay2/007018df729636dd7c3d22ea683d13b6f5f0657b7c2c9e0014c671id argument. 
+解决办法：
+这个是因为用的overlay2文件系统，而系统默认只能识别overlay文件系统
+所以我们就要更新文件系统了
+#systemctl stop docker      //停掉docker服务 
+#rm -rf /var/lib/docker     //注意会清掉docker images的镜像  
+#vi /etc/sysconfig/docker-storage       //将文件里的overlay2改成overlay即可  
+#vi /etc/sysconfig/docker         //去掉option后面的--selinux-enabled  
+启动docker服务：
+systemctl start docker
+5.用命令查看Docker -GitLab版本号
+docker exec -it CONTAINER ID cat /opt/gitlab/version-manifest.json | grep build_version
+
+虚机rpm安装方式
+1.下载rpm包  https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/    --清华大学开源软件镜像站
+2.rpm安装 rpm -ivh gitlab-ce-8.8.5-ce.1.el7.x86_64.rpm
+3.修改gitlab配置
+vim /etc/gitlab/gitlab.rb
+把external_url 修改为你自己的服务器ip
+默认管理员的用户名密码 root/5iveL!fe   
+
+其他安装方式：
+https://about.gitlab.com/installation/      --gitlab官网
